@@ -15,13 +15,16 @@ public final class BetterLootBall {
         // Write common init code here.
         BetterLootBallBlocks.initialize();
 
-        EnvExecutor.runInEnv(Env.CLIENT,()->Client::initializeClient);
+        EnvExecutor.runInEnv(Env.CLIENT, () -> Client::initializeClient);
     }
+
     @Environment(EnvType.CLIENT)
     public static class Client {
         @Environment(EnvType.CLIENT)
         public static void initializeClient() {
-            ClientLifecycleEvent.CLIENT_SETUP.register((client)->{Client.setupClient();});
+            ClientLifecycleEvent.CLIENT_SETUP.register((client) -> {
+                Client.setupClient();
+            });
         }
 
         public static void setupClient() {

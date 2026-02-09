@@ -1,35 +1,44 @@
 package com.teseting.betterlootballs;
 
-import com.mojang.serialization.MapCodec;
+import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity;
+import kotlin.Unit;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AbstractSkullBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.gameevent.GameEventListener;
-import org.jetbrains.annotations.Nullable;
 
 import static com.teseting.betterlootballs.registry.BetterLootBallBlocks.TEST_BLOCK_ENTITY;
 
-public class LootBallBlockEntity extends BlockEntity  {
+//import static com.teseting.betterlootballs.registry.BetterLootBallBlocks.TEST_BLOCK_ENTITY;
 
+public class LootBallBlockEntity extends BlockEntity {
+    public PokeballDelegate emptyDelegate;
+    public long tickCount = 0;
+    Player opener = null;
+    public ResourceLocation pokeballType;
 
     public LootBallBlockEntity(BlockPos pos, BlockState blockState) {
         super(TEST_BLOCK_ENTITY.get(), pos, blockState);
+        emptyDelegate = new PokeballDelegate(this);
+        emptyDelegate.initSubscriptions();
     }
 
+    public static void tick(Level level, BlockPos pos, BlockState state, LootBallBlockEntity blockEntity) {
+        blockEntity.emptyDelegate.tickNoEntity();
+    }
+
+    public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
+        if (t instanceof LootBallBlockEntity blockEntity) {
+            tick(level, blockPos, blockState, blockEntity);
+        }
+    }
+
+    public void attemptOpen(Player player) {
+        if (opener != null) return;
+        emptyDelegate.stateEmitter.emit(EmptyPokeBallEntity.CaptureState.SHAKE);
+        emptyDelegate.shakeEmitter.emit(Unit.INSTANCE);
+        opener = player;
+    }
 }
